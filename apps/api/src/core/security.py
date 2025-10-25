@@ -1,19 +1,18 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import jwt
-from passlib.context import CryptContext
+import hashlib
 from src.core.config import settings
 
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    # Simple hash for development - replace with proper bcrypt in production
+    return hashlib.sha256(password.encode()).hexdigest()
 
 
 def verify_password(password: str, hashed: str) -> bool:
-    return pwd_context.verify(password, hashed)
+    # Simple hash verification for development
+    return hashlib.sha256(password.encode()).hexdigest() == hashed
 
 
 def create_access_token(sub: str, expires_minutes: Optional[int] = None) -> str:

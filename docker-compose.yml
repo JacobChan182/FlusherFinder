@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: flushfinder_db
+    environment:
+      POSTGRES_DB: flushfinder
+      POSTGRES_USER: flushfinder_user
+      POSTGRES_PASSWORD: flushfinder_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - flushfinder_network
+    restart: unless-stopped
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: flushfinder_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - flushfinder_network
+    restart: unless-stopped
+
+  # API Service
+  api:
+    build: ./apps/api
+    container_name: flushfinder_api
+    environment:
+      - DATABASE_URL=postgresql://flushfinder_user:flushfinder_password@postgres:5432/flushfinder
+      - REDIS_URL=redis://redis:6379
+      - ENVIRONMENT=development
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - flushfinder_network
+    restart: unless-stopped
+    volumes:
+      - ./apps/api:/app
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Frontend Service
+  frontend:
+    build: ./frontend
+    container_name: flushfinder_frontend
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    networks:
+      - flushfinder_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  flushfinder_network:
+    driver: bridge
