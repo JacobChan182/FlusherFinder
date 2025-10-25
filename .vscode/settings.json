@@ -1,0 +1,6 @@
+{
+    "python.defaultInterpreterPath": "apps/api/.venv/bin/python",
+    "python-envs.pythonProjects": [],
+    "python.analysis.extraPaths": ["apps/api/src"],
+    "python.analysis.autoImportCompletions": true
+}

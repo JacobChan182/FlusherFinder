@@ -1,0 +1,9 @@
+core
+db
+main
+migrations
+models
+routers
+schemas
+services
+tests
