@@ -28,6 +28,7 @@
   opacity: 0.9;
   max-width: 600px;
   margin: 0 auto;
+  animation: fadeIn 1s ease-out 0.5s both;
 }
 
 .about-content {

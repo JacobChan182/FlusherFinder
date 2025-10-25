@@ -48,7 +48,7 @@
   box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
-.search-btn {
+.search-btn, .current-location-btn {
   padding: 1rem 2rem;
   background: #3498db;
   color: white;
@@ -61,10 +61,15 @@
   white-space: nowrap;
 }
 
-.search-btn:hover {
+.search-btn:hover, .current-location-btn:hover {
   background: #2980b9;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+}
+
+.current-location-btn {
+  padding: 1rem;
+  font-size: 1.2rem;
 }
 
 .map-section {
