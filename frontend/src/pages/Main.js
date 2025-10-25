@@ -76,7 +76,7 @@ const Main = () => {
             </div>
             
             <div className="map-section">
-                <InteractiveMap center={mapCenter} />
+                <InteractiveMap key={`${mapCenter.lat}-${mapCenter.lng}`} center={mapCenter} />
             </div>
             
             <div className="results-section">
