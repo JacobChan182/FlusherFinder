@@ -1,0 +1,34 @@
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from sqlalchemy import select
+from geoalchemy2 import WKTElement
+
+from src.db import get_db
+from src.models import Washroom, Amenity
+from src.schemas.washroom import WashroomCreate, WashroomOut
+from src.core.dependencies import get_current_user
+
+
+router = APIRouter(prefix="/washrooms", tags=["washrooms"])
+
+
+@router.post("/", response_model=WashroomOut)
+def create_washroom(payload: WashroomCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    geom = WKTElement(f"POINT({payload.lng} {payload.lat})", srid=4326)
+    w = Washroom(name=payload.name, address=payload.address, location=geom, city=payload.city, is_public=payload.is_public, price=payload.price, created_by=user.id)
+    if payload.amenities:
+        ams = db.scalars(select(Amenity).where(Amenity.code.in_(payload.amenities))).all()
+        w.amenities = list(ams)
+    db.add(w); db.commit(); db.refresh(w)
+    return WashroomOut(id=w.id, name=w.name, address=w.address, lat=payload.lat, lng=payload.lng, amenities=[a.code for a in w.amenities], avgRating=None, ratingCount=None)
+
+
+@router.get("/{washroom_id}", response_model=WashroomOut)
+def get_washroom(washroom_id: str, db: Session = Depends(get_db)):
+    w = db.get(Washroom, washroom_id)
+    if not w:
+        raise HTTPException(status_code=404, detail="Not found")
+    # Extract lat/lng from geography
+    lat = db.execute(select(Washroom).where(Washroom.id==washroom_id)).scalar().__dict__["location"]
+    # Simpler: compute via SQL in search; here, return nulls for aggregates in MVP
+    return WashroomOut(id=w.id, name=w.name, address=w.address, lat=0.0, lng=0.0, amenities=[a.code for a in w.amenities])

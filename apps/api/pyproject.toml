@@ -1,20 +1,26 @@
+[build-system]
+requires = ["setuptools>=62", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
 [project]
 name = "washroom-api"
 version = "0.1.0"
-description = "FastAPI backend for washroom finder"
+description = "FastAPI backend for Washroom Finder"
 requires-python = ">=3.11"
 dependencies = [
-  "fastapi>=0.115",
-  "uvicorn[standard]>=0.30",
-  "pydantic>=2.7",
-  "pydantic-settings>=2.4",
-  "SQLAlchemy>=2.0",
-  "psycopg2-binary>=2.9",
-  "alembic>=1.13",
-  "geoalchemy2>=0.15",
-  "python-jose[cryptography]>=3.3",
-  "passlib[bcrypt]>=1.7"
+"fastapi>=0.115",
+"uvicorn[standard]>=0.30",
+"SQLAlchemy>=2.0",
+"alembic>=1.13",
+"psycopg2-binary>=2.9",
+"pydantic>=2.8",
+"pydantic-settings>=2.3",
+"python-jose[cryptography]>=3.3",
+"passlib[bcrypt]>=1.7",
+"geoalchemy2>=0.15",
 ]
 
-[tool.uv]
-index-url = "https://pypi.org/simple"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
