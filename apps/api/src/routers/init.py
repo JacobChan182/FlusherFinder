@@ -73,7 +73,7 @@ def init_database():
             SELECT table_name 
             FROM information_schema.tables 
             WHERE table_schema = 'public' 
-              AND table_name IN ('washrooms', 'amenities', 'washroom_amenities')
+              AND table_name IN ('washrooms', 'amenities', 'washroom_amenities', 'reviews')
         """)).fetchall()
         
         tables_created = [row[0] for row in result]
