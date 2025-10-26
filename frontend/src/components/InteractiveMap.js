@@ -290,8 +290,9 @@ function InteractiveMap() {
               <div className="washroom-info">
                 <h3>{selectedWashroom.name}</h3>
                 <p>{selectedWashroom.address}</p>
+                <p><strong>📊 Reviews: {selectedWashroom.ratingCount || 0}</strong></p>
                 {selectedWashroom.avgRating && (
-                  <p>⭐ {selectedWashroom.avgRating} ({selectedWashroom.ratingCount} reviews)</p>
+                  <p>⭐ Average Rating: {selectedWashroom.avgRating.toFixed(1)}</p>
                 )}
                 <p>{selectedWashroom.is_public ? 'Public' : 'Private'}</p>
                 <button 

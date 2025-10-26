@@ -13,8 +13,8 @@ def search_nearby(lat: float, lng: float, radius: int, min_rating: float, limit:
         SELECT w.id, w.name, w.address,
                 w.latitude AS lat,
                 w.longitude AS lng,
-                0.0 AS "avgRating",
-                0 AS "ratingCount",
+                COALESCE(AVG(r.rating), 0.0) AS "avgRating",
+                COUNT(r.id) AS "ratingCount",
                 -- Haversine formula to calculate distance in meters
                 6371000 * acos(
                     LEAST(1.0, 
@@ -24,9 +24,11 @@ def search_nearby(lat: float, lng: float, radius: int, min_rating: float, limit:
                     )
                 ) AS "distanceM"
         FROM washrooms w
+        LEFT JOIN reviews r ON w.id = r.washroom_id
         WHERE -- Approximate distance check (using latitude/longitude degrees)
             abs(w.latitude - :lat) * 111000 <= :radius AND
             abs(w.longitude - :lng) * 111000 <= :radius
+        GROUP BY w.id, w.name, w.address, w.latitude, w.longitude
         ORDER BY "distanceM" ASC
         LIMIT :limit OFFSET :offset
         """
