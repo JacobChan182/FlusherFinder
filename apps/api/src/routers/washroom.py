@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from geoalchemy2 import WKTElement
 
 from src.db import get_db
 from src.models import Washroom, Amenity
@@ -14,13 +13,12 @@ router = APIRouter(prefix="/washrooms", tags=["washrooms"])
 
 @router.post("/", response_model=WashroomOut)
 def create_washroom(payload: WashroomCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
-    geom = WKTElement(f"POINT({payload.lng} {payload.lat})", srid=4326)
-    w = Washroom(name=payload.name, address=payload.address, location=geom, city=payload.city, is_public=payload.is_public, price=payload.price, created_by=user.id)
+    w = Washroom(name=payload.name, address=payload.address, latitude=payload.lat, longitude=payload.lng, city=payload.city, is_public=payload.is_public, price=payload.price, created_by=user.id)
     if payload.amenities:
         ams = db.scalars(select(Amenity).where(Amenity.code.in_(payload.amenities))).all()
         w.amenities = list(ams)
     db.add(w); db.commit(); db.refresh(w)
-    return WashroomOut(id=w.id, name=w.name, address=w.address, lat=payload.lat, lng=payload.lng, amenities=[a.code for a in w.amenities], avgRating=None, ratingCount=None)
+    return WashroomOut(id=w.id, name=w.name, address=w.address, lat=w.latitude, lng=w.longitude, amenities=[a.code for a in w.amenities], avgRating=None, ratingCount=None)
 
 
 @router.get("/{washroom_id}", response_model=WashroomOut)

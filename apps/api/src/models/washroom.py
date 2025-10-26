@@ -1,8 +1,7 @@
 import uuid
 from typing import List, Optional, Any
-from sqlalchemy import String, Text, ForeignKey, Integer, Boolean
+from sqlalchemy import String, Text, ForeignKey, Integer, Boolean, Float
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from geoalchemy2 import Geography
 from src.db import Base
 
 class Washroom(Base):
@@ -13,10 +12,9 @@ class Washroom(Base):
     description: Mapped[Optional[str]] = mapped_column(Text)
     address: Mapped[Optional[str]] = mapped_column(String(300))
 
-    # geography(Point, 4326) — store lon/lat
-    location: Mapped[Any] = mapped_column(
-        Geography(geometry_type="POINT", srid=4326, spatial_index=True), nullable=False
-    )
+    # latitude and longitude instead of geography (PostGIS not installed)
+    latitude: Mapped[float] = mapped_column(Float, nullable=False)
+    longitude: Mapped[float] = mapped_column(Float, nullable=False)
 
     city: Mapped[Optional[str]] = mapped_column(String(100))
     is_public: Mapped[bool] = mapped_column(Boolean, default=True)
