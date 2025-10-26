@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import '../styling/Login.css';
+import '../styling/Signup.css';
 
-const Login = () => {
+const Signup = () => {
     const [formData, setFormData] = useState({
         email: '',
-        password: ''
+        password: '',
+        display_name: '',
+        confirmPassword: ''
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -23,34 +25,45 @@ const Login = () => {
         setError('');
         setLoading(true);
 
+        // Validate passwords match
+        if (formData.password !== formData.confirmPassword) {
+            setError('Passwords do not match');
+            setLoading(false);
+            return;
+        }
+
+        // Validate password length
+        if (formData.password.length < 6) {
+            setError('Password must be at least 6 characters long');
+            setLoading(false);
+            return;
+        }
+
         try {
-            const response = await fetch('http://localhost:8000/auth/login', {
+            const response = await fetch('http://localhost:8000/auth/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     email: formData.email,
-                    password: formData.password
+                    password: formData.password,
+                    display_name: formData.display_name
                 })
             });
 
             if (response.ok) {
                 const data = await response.json();
-                console.log('Login successful:', data);
+                console.log('Signup successful:', data);
                 
-                // Store the token in localStorage
-                localStorage.setItem('access_token', data.access_token);
-                localStorage.setItem('token_type', data.token_type);
-                
-                // Redirect to main page
-                navigate('/main');
+                // Redirect to login page after successful signup
+                navigate('/login');
             } else {
                 const errorData = await response.json();
-                setError(errorData.detail || 'Login failed. Please check your credentials.');
+                setError(errorData.detail || 'Signup failed. Please try again.');
             }
         } catch (err) {
-            console.error('Login error:', err);
+            console.error('Signup error:', err);
             setError('Network error. Please check if the API is running.');
         } finally {
             setLoading(false);
@@ -60,12 +73,23 @@ const Login = () => {
     return (
         <div className="login-container">
             <div className="login-form-container">
-                <h1>Welcome Back</h1>
-                <p className="login-subtitle">Sign in to access your FlushFinder account</p>
-                
+                <h1>Welcome to FlushFinder</h1>
+                <p className="login-subtitle">Sign up to access all features of the FlushFinder app</p>
                 <form onSubmit={handleSubmit} className="login-form">
                     {error && <div className="error-message">{error}</div>}
                     
+                    <div className="form-group">
+                        <label htmlFor="display_name">Display Name</label>
+                        <input
+                            type="text"
+                            id="display_name"
+                            name="display_name"
+                            value={formData.display_name}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
                     <div className="form-group">
                         <label htmlFor="email">Email</label>
                         <input
@@ -87,21 +111,33 @@ const Login = () => {
                             value={formData.password}
                             onChange={handleChange}
                             required
+                            minLength="6"
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="confirmPassword">Confirm Password</label>
+                        <input
+                            type="password"
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                            required
                         />
                     </div>
                     
                     <button type="submit" className="login-btn" disabled={loading}>
-                        {loading ? 'Signing In...' : 'Sign In'}
+                        {loading ? 'Signing Up...' : 'Sign Up'}
                     </button>
                 </form>
                 
                 <div className="login-footer">
-                    <p>Don't have an account? <Link to="/signup" className="login-footer-link">Sign up</Link></p>
-                    <Link to="/forgot-password" className="login-footer-link">Forgot your password?</Link>
+                    <p>Have an account? <Link to="/login">Log in</Link></p>
                 </div>
             </div>
         </div>
     );
 };
 
-export default Login;
+export default Signup;
