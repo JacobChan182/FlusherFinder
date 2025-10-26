@@ -13,6 +13,7 @@ from src.routers.auth import router as auth_router
 from src.routers.washroom import router as washroom_router
 from src.routers.reviews import router as reviews_router
 from src.routers.search import router as search_router
+from src.routers.init import router as init_router
 
 
 app = FastAPI(title="Washroom Finder API", version="0.1.0")
@@ -44,6 +45,7 @@ app.include_router(auth_router)
 app.include_router(washroom_router)
 app.include_router(reviews_router)
 app.include_router(search_router)
+app.include_router(init_router)
 
 
 @app.get("/")
