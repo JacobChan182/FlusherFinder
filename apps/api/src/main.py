@@ -1,6 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.core.config import settings
+
+# Import settings with error handling
+try:
+    from src.core.config import settings
+except Exception as e:
+    print(f"ERROR: Failed to load settings: {e}")
+    print("Make sure DATABASE_URL and JWT_SECRET are set in environment variables")
+    raise
 
 from src.routers.auth import router as auth_router
 from src.routers.washroom import router as washroom_router
