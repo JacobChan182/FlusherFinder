@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { APIProvider, Map, Marker, InfoWindow } from '@vis.gl/react-google-maps';
 import { API_BASE_URL } from '../config';
 import { getAuthToken } from '../utils/cookies';
@@ -26,6 +26,15 @@ function InteractiveMap() {
   });
   const [geocodingLoading, setGeocodingLoading] = useState(false);
   const apikey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+
+  // Stable handlers to prevent re-renders
+  const handleCommentChange = useCallback((e) => {
+    setReviewForm(prev => ({ ...prev, comment: e.target.value }));
+  }, []);
+
+  const handleRatingChange = useCallback((e) => {
+    setReviewForm(prev => ({ ...prev, rating: parseFloat(e.target.value) }));
+  }, []);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -386,10 +395,7 @@ function InteractiveMap() {
                   <select
                     required
                     value={reviewForm.rating}
-                    onChange={(e) => {
-                      const newRating = parseFloat(e.target.value);
-                      setReviewForm(prev => ({ ...prev, rating: newRating }));
-                    }}
+                    onChange={handleRatingChange}
                     className="rating-select"
                   >
                     <option value={5}>⭐⭐⭐⭐⭐ Excellent (5)</option>
@@ -404,10 +410,7 @@ function InteractiveMap() {
                   <label>Comment</label>
                   <textarea
                     value={reviewForm.comment}
-                    onChange={(e) => {
-                      const newComment = e.target.value;
-                      setReviewForm(prev => ({ ...prev, comment: newComment }));
-                    }}
+                    onChange={handleCommentChange}
                     placeholder="Share your experience..."
                     rows={4}
                     className="review-comment"
