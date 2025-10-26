@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { APIProvider, Map, Marker, InfoWindow } from '@vis.gl/react-google-maps';
 import { API_BASE_URL } from '../config';
 import { getAuthToken } from '../utils/cookies';
@@ -20,21 +20,10 @@ function InteractiveMap() {
     amenities: []
   });
   const [showReviewModal, setShowReviewModal] = useState(false);
-  const [reviewForm, setReviewForm] = useState({
-    rating: 5,
-    comment: ''
-  });
   const [geocodingLoading, setGeocodingLoading] = useState(false);
+  const commentRef = useRef(null);
+  const ratingRef = useRef(null);
   const apikey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-
-  // Stable handlers to prevent re-renders
-  const handleCommentChange = useCallback((e) => {
-    setReviewForm(prev => ({ ...prev, comment: e.target.value }));
-  }, []);
-
-  const handleRatingChange = useCallback((e) => {
-    setReviewForm(prev => ({ ...prev, rating: parseFloat(e.target.value) }));
-  }, []);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -196,43 +185,49 @@ function InteractiveMap() {
   };
 
   const handleCreateReview = async (e) => {
-  e.preventDefault();
-  const token = getAuthToken();
-  
-  if (!token) {
-    alert('Please login to leave a review');
-    return;
-  }
-  
-  if (!selectedWashroom) {
-    alert('Please select a washroom first');
-    return;
-  }
-
-  try {
-    console.log('Creating review for washroom:', selectedWashroom.id);
+    e.preventDefault();
+    const token = getAuthToken();
     
-    const response = await fetch(`${API_BASE_URL}/reviews/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        washroom_id: selectedWashroom.id,
-        rating: reviewForm.rating,
-        comment: reviewForm.comment
-      })
-    });
+    if (!token) {
+      alert('Please login to leave a review');
+      return;
+    }
+    
+    if (!selectedWashroom) {
+      alert('Please select a washroom first');
+      return;
+    }
+
+    // Get values from refs instead of state
+    const rating = parseFloat(ratingRef.current?.value || 5);
+    const comment = commentRef.current?.value || '';
+
+    try {
+      console.log('Creating review for washroom:', selectedWashroom.id);
+      
+      const response = await fetch(`${API_BASE_URL}/reviews/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          washroom_id: selectedWashroom.id,
+          rating: rating,
+          comment: comment
+        })
+      });
 
     console.log('Response status:', response.status);
     
-    if (response.ok) {
-      const newReview = await response.json();
-      console.log('Review created:', newReview);
-      setShowReviewModal(false);
-      setReviewForm({ rating: 5, comment: '' });
-      alert('Review submitted successfully!');
+      if (response.ok) {
+        const newReview = await response.json();
+        console.log('Review created:', newReview);
+        setShowReviewModal(false);
+        // Clear the refs instead of state
+        if (commentRef.current) commentRef.current.value = '';
+        if (ratingRef.current) ratingRef.current.value = '5';
+        alert('Review submitted successfully!');
       
       // Optionally refresh washrooms to get updated ratings
       if (userLocation) {
@@ -394,8 +389,8 @@ function InteractiveMap() {
                   <label>Rating *</label>
                   <select
                     required
-                    value={reviewForm.rating}
-                    onChange={handleRatingChange}
+                    ref={ratingRef}
+                    defaultValue="5"
                     className="rating-select"
                   >
                     <option value={5}>⭐⭐⭐⭐⭐ Excellent (5)</option>
@@ -409,8 +404,7 @@ function InteractiveMap() {
                 <div className="form-group">
                   <label>Comment</label>
                   <textarea
-                    value={reviewForm.comment}
-                    onChange={handleCommentChange}
+                    ref={commentRef}
                     placeholder="Share your experience..."
                     rows={4}
                     className="review-comment"
