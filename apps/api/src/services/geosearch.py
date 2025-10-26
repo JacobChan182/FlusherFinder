@@ -13,7 +13,11 @@ def search_nearby(lat: float, lng: float, radius: int, min_rating: float, limit:
         SELECT w.id, w.name, w.address,
                 w.latitude AS lat,
                 w.longitude AS lng,
-                COALESCE(AVG(r.rating), 0.0) AS "avgRating",
+                COALESCE(
+                    -- Bayesian smoothing: (total_ratings * avg_rating + prior_rating * prior_weight) / (total_ratings + prior_weight)
+                    (COUNT(r.id) * AVG(r.rating) + 3.6 * 8.0) / (COUNT(r.id) + 8.0), 
+                    3.6  -- Default to prior rating if no reviews
+                ) AS "avgRating",
                 COUNT(r.id) AS "ratingCount",
                 -- Haversine formula to calculate distance in meters
                 6371000 * acos(

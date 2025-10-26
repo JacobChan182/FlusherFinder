@@ -1,4 +1,4 @@
-# FlushFinder - Complete Setup Guide
+git # FlushFinder - Complete Setup Guide
 
 This guide will help you set up and run the entire FlushFinder application on your desktop.
 
