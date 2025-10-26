@@ -4,7 +4,7 @@ import { API_BASE_URL } from '../config';
 import { getAuthToken } from '../utils/cookies';
 import './InteractiveMap.css';
 
-function InteractiveMap() {
+function InteractiveMap({ onWashroomsUpdate, highlightedMarker }) {
   const [userLocation, setUserLocation] = useState(null);
   const [error, setError] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
@@ -57,6 +57,15 @@ function InteractiveMap() {
         const data = await response.json();
         console.log('Fetched washrooms:', data);
         setWashrooms(data || []);
+        
+        // Sort by rating and pass top rated to parent
+        const sortedWashrooms = (data || [])
+          .filter(w => w.avgRating > 0)
+          .sort((a, b) => (b.avgRating || 0) - (a.avgRating || 0));
+        
+        if (onWashroomsUpdate) {
+          onWashroomsUpdate(sortedWashrooms);
+        }
       } else {
         console.error('Failed to fetch washrooms:', response.status, response.statusText);
       }
@@ -281,6 +290,15 @@ const handleRestroomClick = (washroom) => {
               key={washroom.id}
               position={{ lat: washroom.lat, lng: washroom.lng }}
               onClick={() => setSelectedWashroom(washroom)}
+              style={{
+                backgroundColor: highlightedMarker === washroom.id ? '#ff6b6b' : '#ff0000',
+                border: highlightedMarker === washroom.id ? '3px solid #ff6b6b' : '2px solid #ff0000',
+                borderRadius: '50%',
+                width: '20px',
+                height: '20px',
+                transform: highlightedMarker === washroom.id ? 'scale(1.5)' : 'scale(1)',
+                transition: 'all 0.3s ease'
+              }}
             />
           ))}
           
@@ -428,29 +446,6 @@ const handleRestroomClick = (washroom) => {
           </div>
         )}
 
-        {/* Nearby Restrooms List */}
-        <div className="restrooms-list">
-          <h3>Nearby Restrooms ({washrooms.length})</h3>
-          <div className="restrooms-grid">
-            {washrooms.map((washroom) => (
-              <div 
-                key={washroom.id}
-                className={`restroom-card ${selectedWashroom?.id === washroom.id ? 'selected' : ''}`}
-                onClick={() => handleRestroomClick(washroom)}
-              >
-                <h4>{washroom.name}</h4>
-                <p className="restroom-address">{washroom.address}</p>
-                <div className="restroom-stats">
-                  <span className="rating">⭐ {washroom.avgRating?.toFixed(1) || 'N/A'}</span>
-                  <span className="reviews">📊 {washroom.ratingCount || 0} reviews</span>
-                </div>
-                <div className="restroom-type">
-                  {washroom.is_public ? 'Public' : 'Private'}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
 
       </div>
     </APIProvider>

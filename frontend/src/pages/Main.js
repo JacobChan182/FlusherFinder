@@ -5,6 +5,8 @@ import InteractiveMap from '../components/InteractiveMap';
 const Main = () => {
     const [location, setLocation] = useState('');
     const [mapCenter, setMapCenter] = useState({ lat: 40.7128, lng: -74.0060 }); // Default to NYC
+    const [topRatedWashrooms, setTopRatedWashrooms] = useState([]);
+    const [highlightedMarker, setHighlightedMarker] = useState(null);
 
     const handleLocationChange = (e) => {
         setLocation(e.target.value);
@@ -76,32 +78,58 @@ const Main = () => {
             </div>
             
             <div className="map-section">
-                <InteractiveMap key={`${mapCenter.lat}-${mapCenter.lng}`} center={mapCenter} />
+                <InteractiveMap 
+                    key={`${mapCenter.lat}-${mapCenter.lng}`} 
+                    center={mapCenter}
+                    onWashroomsUpdate={setTopRatedWashrooms}
+                    highlightedMarker={highlightedMarker}
+                />
             </div>
             
             <div className="results-section">
-                <h2>Nearby Restrooms</h2>
+                <h2>Top Rated Restrooms</h2>
                 <div className="restroom-list">
-                    <div className="restroom-card">
-                        <h3>📍 Coffee Shop Downtown</h3>
-                        <p>123 Main Street</p>
-                        <div className="rating">⭐⭐⭐⭐⭐ (4.8/5)</div>
-                        <div className="features">
-                            <span className="feature-tag">Clean</span>
-                            <span className="feature-tag">Accessible</span>
-                            <span className="feature-tag">Single Occupancy</span>
-                        </div>
-                    </div>
-                    
-                    <div className="restroom-card">
-                        <h3>📍 Shopping Mall</h3>
-                        <p>456 Commerce Ave</p>
-                        <div className="rating">⭐⭐⭐⭐ (4.2/5)</div>
-                        <div className="features">
-                            <span className="feature-tag">Multiple Stalls</span>
-                            <span className="feature-tag">Changing Table</span>
-                        </div>
-                    </div>
+                    {topRatedWashrooms.length > 0 ? (
+                        topRatedWashrooms.slice(0, 2).map((washroom, index) => (
+                            <div 
+                                key={washroom.id}
+                                className={`restroom-card ${highlightedMarker === washroom.id ? 'highlighted' : ''}`}
+                                onMouseEnter={() => setHighlightedMarker(washroom.id)}
+                                onMouseLeave={() => setHighlightedMarker(null)}
+                            >
+                                <h3>📍 {washroom.name}</h3>
+                                <p>{washroom.address}</p>
+                                <div className="rating">
+                                    ⭐ {washroom.avgRating ? washroom.avgRating.toFixed(1) : 'N/A'} 
+                                    ({washroom.ratingCount || 0} reviews)
+                                </div>
+                                <div className="features">
+                                    <span className="feature-tag">{washroom.is_public ? 'Public' : 'Private'}</span>
+                                    <span className="feature-tag">Top Rated</span>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <>
+                            <div className="restroom-card">
+                                <h3>📍 Loading...</h3>
+                                <p>Finding top rated restrooms...</p>
+                                <div className="rating">⭐⭐⭐⭐⭐ (Loading...)</div>
+                                <div className="features">
+                                    <span className="feature-tag">Please wait</span>
+                                </div>
+                            </div>
+                            
+                            <div className="restroom-card">
+                                <h3>📍 Loading...</h3>
+                                <p>Finding top rated restrooms...</p>
+                                <div className="rating">⭐⭐⭐⭐ (Loading...)</div>
+                                <div className="features">
+                                    <span className="feature-tag">Please wait</span>
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
         </div>
