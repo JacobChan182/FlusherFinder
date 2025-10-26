@@ -6,20 +6,15 @@ def search_nearby(lat: float, lng: float, radius: int, min_rating: float, limit:
     """
     Search nearby washrooms using latitude/longitude columns (no PostGIS required).
     Uses haversine formula for distance calculation.
+    Works without reviews table if it doesn't exist yet.
     """
     sql = text(
         """
-        WITH ra AS (
-            SELECT w.id AS washroom_id, COALESCE(AVG(r.rating),0) AS avg_rating, COUNT(r.*) AS rating_count
-            FROM washrooms w
-            LEFT JOIN reviews r ON r.washroom_id = w.id
-            GROUP BY w.id
-        )
         SELECT w.id, w.name, w.address,
                 w.latitude AS lat,
                 w.longitude AS lng,
-                ra.avg_rating AS "avgRating",
-                ra.rating_count AS "ratingCount",
+                0.0 AS "avgRating",
+                0 AS "ratingCount",
                 -- Haversine formula to calculate distance in meters
                 6371000 * acos(
                     LEAST(1.0, 
@@ -29,13 +24,9 @@ def search_nearby(lat: float, lng: float, radius: int, min_rating: float, limit:
                     )
                 ) AS "distanceM"
         FROM washrooms w
-        JOIN ra ON ra.washroom_id = w.id
-        WHERE ra.avg_rating >= :min_rating
-          -- Approximate distance check (using latitude/longitude degrees)
-          AND (
+        WHERE -- Approximate distance check (using latitude/longitude degrees)
             abs(w.latitude - :lat) * 111000 <= :radius AND
             abs(w.longitude - :lng) * 111000 <= :radius
-          )
         ORDER BY "distanceM" ASC
         LIMIT :limit OFFSET :offset
         """
