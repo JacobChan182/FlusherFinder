@@ -26,7 +26,13 @@ def get_washroom(washroom_id: str, db: Session = Depends(get_db)):
     w = db.get(Washroom, washroom_id)
     if not w:
         raise HTTPException(status_code=404, detail="Not found")
-    # Extract lat/lng from geography
-    lat = db.execute(select(Washroom).where(Washroom.id==washroom_id)).scalar().__dict__["location"]
-    # Simpler: compute via SQL in search; here, return nulls for aggregates in MVP
-    return WashroomOut(id=w.id, name=w.name, address=w.address, lat=0.0, lng=0.0, amenities=[a.code for a in w.amenities])
+    return WashroomOut(
+        id=w.id, 
+        name=w.name, 
+        address=w.address, 
+        lat=w.latitude, 
+        lng=w.longitude, 
+        amenities=[a.code for a in w.amenities],
+        avgRating=None,
+        ratingCount=None
+    )
