@@ -420,6 +420,30 @@ function InteractiveMap() {
           </div>
         )}
 
+        {/* Nearby Restrooms List */}
+        <div className="restrooms-list">
+          <h3>Nearby Restrooms ({washrooms.length})</h3>
+          <div className="restrooms-grid">
+            {washrooms.map((washroom) => (
+              <div 
+                key={washroom.id}
+                className={`restroom-card ${selectedWashroom?.id === washroom.id ? 'selected' : ''}`}
+                onClick={() => handleRestroomClick(washroom)}
+              >
+                <h4>{washroom.name}</h4>
+                <p className="restroom-address">{washroom.address}</p>
+                <div className="restroom-stats">
+                  <span className="rating">⭐ {washroom.avgRating?.toFixed(1) || 'N/A'}</span>
+                  <span className="reviews">📊 {washroom.ratingCount || 0} reviews</span>
+                </div>
+                <div className="restroom-type">
+                  {washroom.is_public ? 'Public' : 'Private'}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </APIProvider>
   );
