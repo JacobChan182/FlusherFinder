@@ -19,6 +19,11 @@ function InteractiveMap() {
     price: '',
     amenities: []
   });
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewForm, setReviewForm] = useState({
+    rating: 5,
+    comment: ''
+  });
   const [geocodingLoading, setGeocodingLoading] = useState(false);
   const apikey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
@@ -181,6 +186,60 @@ function InteractiveMap() {
     }
   };
 
+  const handleCreateReview = async (e) => {
+  e.preventDefault();
+  const token = getAuthToken();
+  
+  if (!token) {
+    alert('Please login to leave a review');
+    return;
+  }
+  
+  if (!selectedWashroom) {
+    alert('Please select a washroom first');
+    return;
+  }
+
+  try {
+    console.log('Creating review for washroom:', selectedWashroom.id);
+    
+    const response = await fetch(`${API_BASE_URL}/reviews/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        washroom_id: selectedWashroom.id,
+        rating: reviewForm.rating,
+        comment: reviewForm.comment
+      })
+    });
+
+    console.log('Response status:', response.status);
+    
+    if (response.ok) {
+      const newReview = await response.json();
+      console.log('Review created:', newReview);
+      setShowReviewModal(false);
+      setReviewForm({ rating: 5, comment: '' });
+      alert('Review submitted successfully!');
+      
+      // Optionally refresh washrooms to get updated ratings
+      if (userLocation) {
+        fetchNearbyWashrooms(userLocation.lat, userLocation.lng);
+      }
+    } else {
+      const errorData = await response.json();
+      console.error('API Error:', errorData);
+      alert(`Failed to submit review: ${errorData.detail || 'Unknown error'}`);
+    }
+  } catch (err) {
+    console.error('Error creating review:', err);
+    alert('Failed to submit review. Please try again.');
+  }
+};
+
   if (error) {
     return <div className="map-error">Error: {error}</div>;
   }
@@ -213,6 +272,7 @@ function InteractiveMap() {
             />
           ))}
           
+
           {selectedWashroom && (
             <InfoWindow
               position={{ lat: selectedWashroom.lat, lng: selectedWashroom.lng }}
@@ -225,10 +285,17 @@ function InteractiveMap() {
                   <p>⭐ {selectedWashroom.avgRating} ({selectedWashroom.ratingCount} reviews)</p>
                 )}
                 <p>{selectedWashroom.is_public ? 'Public' : 'Private'}</p>
+                <button
+                  onClick={() => setShowReviewModal(true)}
+                  className="btn-review"
+                >
+                  Leave a Review
+                </button>
               </div>
             </InfoWindow>
           )}
         </Map>
+
 
         {showModal && (
           <div className="modal-overlay" onClick={() => setShowModal(false)}>
@@ -306,6 +373,50 @@ function InteractiveMap() {
             </div>
           </div>
         )}
+
+        {showReviewModal && (
+          <div className="modal-overlay" onClick={() => setShowReviewModal(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <h2>Leave a Review</h2>
+              <p><strong>{selectedWashroom?.name}</strong></p>
+              
+              <form onSubmit={handleCreateReview}>
+                <div className="form-group">
+                  <label>Rating *</label>
+                  <select
+                  required
+                  value={reviewForm.rating}
+                  onChange={(e) => setReviewForm({ ...reviewForm, rating: parseFloat(e.target.value) })}
+                  className="rating-select"
+                  >
+                    <option value={5}>⭐⭐⭐⭐⭐ Excellent (5)</option>
+                    <option value={4}>⭐⭐⭐⭐ Very Good (4)</option>
+                    <option value={3}>⭐⭐⭐ Good (3)</option>
+                    <option value={2}>⭐⭐ Fair (2)</option>
+                    <option value={1}>⭐ Poor (1)</option>
+                  </select>
+                </div>
+                
+                <div className="form-group">
+                  <label>Comment</label>
+                  <textarea
+                    value={reviewForm.comment}
+                    onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                    placeholder="Share your experience..."
+                    rows={4}
+                    className="review-comment"
+                  />
+                </div>
+        
+                <div className="modal-buttons">
+                  <button type="submit" className="btn-primary">Submit Review</button>
+                  <button type="button" onClick={() => setShowReviewModal(false)} className="btn-secondary">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
       </div>
     </APIProvider>
   );
