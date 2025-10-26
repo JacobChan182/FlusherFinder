@@ -19,6 +19,7 @@ function InteractiveMap() {
     price: '',
     amenities: []
   });
+  const [geocodingLoading, setGeocodingLoading] = useState(false);
   const apikey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
   useEffect(() => {
@@ -55,11 +56,63 @@ function InteractiveMap() {
     }
   };
 
-  const handleMapClick = (event) => {
+  const reverseGeocode = async (lat, lng) => {
+    try {
+      setGeocodingLoading(true);
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apikey}`
+      );
+      const data = await response.json();
+      
+      if (data.status === 'OK' && data.results.length > 0) {
+        const result = data.results[0];
+        let address = result.formatted_address;
+        let city = '';
+        
+        // Try to extract city from address components
+        const cityComponent = result.address_components.find(
+          component => component.types.includes('locality')
+        );
+        if (cityComponent) {
+          city = cityComponent.long_name;
+        } else {
+          // Fallback: try to extract from formatted address
+          const parts = address.split(',');
+          if (parts.length > 2) {
+            city = parts[parts.length - 3].trim();
+          }
+        }
+        
+        return { address, city };
+      }
+      return { address: '', city: '' };
+    } catch (error) {
+      console.error('Reverse geocoding error:', error);
+      return { address: '', city: '' };
+    } finally {
+      setGeocodingLoading(false);
+    }
+  };
+
+  const handleMapClick = async (event) => {
     if (event.detail.latLng) {
       const lat = event.detail.latLng.lat;
       const lng = event.detail.latLng.lng;
       setSelectedLocation({ lat, lng });
+      
+      // Reverse geocode to get address
+      const { address, city } = await reverseGeocode(lat, lng);
+      
+      // Pre-fill form with address
+      setWashroomForm({
+        name: '',
+        address: address,
+        city: city,
+        is_public: true,
+        price: '',
+        amenities: []
+      });
+      
       setShowModal(true);
     }
   };
@@ -72,19 +125,27 @@ function InteractiveMap() {
       alert('Please login to create a washroom location');
       return;
     }
+    
+    if (!selectedLocation) {
+      alert('Please click on the map to select a location first');
+      return;
+    }
 
     try {
+      const requestBody = {
+        ...washroomForm,
+        lat: selectedLocation.lat,
+        lng: selectedLocation.lng
+      };
+      console.log('Sending request:', requestBody);
+      
       const response = await fetch(`${API_BASE_URL}/washrooms/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          ...washroomForm,
-          lat: selectedLocation.lat,
-          lng: selectedLocation.lng
-        })
+        body: JSON.stringify(requestBody)
       });
 
       if (response.ok) {
@@ -102,6 +163,7 @@ function InteractiveMap() {
         alert('Washroom location added successfully!');
       } else {
         const errorData = await response.json();
+        console.error('API Error:', errorData);
         alert(`Failed to create washroom: ${errorData.detail || 'Unknown error'}`);
       }
     } catch (err) {
@@ -176,12 +238,13 @@ function InteractiveMap() {
                 </div>
                 
                 <div className="form-group">
-                  <label>Address</label>
+                  <label>Address {geocodingLoading && <span className="loading-text">(Loading...)</span>}</label>
                   <input
                     type="text"
                     value={washroomForm.address}
-                    onChange={(e) => setWashroomForm({ ...washroomForm, address: e.target.value })}
-                    placeholder="Street address"
+                    readOnly
+                    className="readonly-input"
+                    placeholder="Auto-filled from map location"
                   />
                 </div>
                 
@@ -190,10 +253,20 @@ function InteractiveMap() {
                   <input
                     type="text"
                     value={washroomForm.city}
-                    onChange={(e) => setWashroomForm({ ...washroomForm, city: e.target.value })}
-                    placeholder="City"
+                    readOnly
+                    className="readonly-input"
+                    placeholder="Auto-filled from map location"
                   />
                 </div>
+                
+                {selectedLocation && (
+                  <div className="form-group">
+                    <label>Coordinates</label>
+                    <div className="coordinates-display">
+                      <span>📍 {selectedLocation.lat.toFixed(6)}, {selectedLocation.lng.toFixed(6)}</span>
+                    </div>
+                  </div>
+                )}
                 
                 <div className="form-group">
                   <label>Price</label>
