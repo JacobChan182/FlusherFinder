@@ -65,7 +65,7 @@ const Navbar = () => {
                     {isAuthenticated ? (
                         <>
                             <li className="navbar-item">
-                                <span className="navbar-user">👤 {displayName || 'User'}</span>
+                                <span className="navbar-user">{displayName || 'User'}</span>
                             </li>
                             <li className="navbar-item">
                                 <button onClick={logout} className="navbar-link logout-btn">Logout</button>
