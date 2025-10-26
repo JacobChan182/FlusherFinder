@@ -30,28 +30,12 @@ const About = () => {
                         life's experiences.
                     </p>
                 </section>
-
-                <section className="solution-section">
-                    <h2>Our Solution</h2>
+                <section className="impact-section">
+                    <h2>Our Impact</h2>
                     <p>
                         FlushFinder is more than just a bathroom finder app – it's a community-driven platform that 
                         empowers users to share real experiences and help each other navigate the world safely. 
                         Our users can:
-                    </p>
-                    <ul className="feature-list">
-                        <li>📍 <strong>Find nearby restrooms</strong> with detailed information about cleanliness, accessibility, and availability</li>
-                        <li>⭐ <strong>Read and write reviews</strong> from people who understand the unique needs of digestive conditions</li>
-                        <li>🚪 <strong>Check accessibility features</strong> like grab bars, changing tables, and single-occupancy options</li>
-                        <li>⏰ <strong>See real-time availability</strong> and wait times to plan accordingly</li>
-                        <li>💬 <strong>Connect with a supportive community</strong> of people who share similar experiences</li>
-                    </ul>
-                </section>
-
-                <section className="impact-section">
-                    <h2>Our Impact</h2>
-                    <p>
-                        By providing reliable, community-verified information about restroom locations and conditions, 
-                        FlushFinder helps users:
                     </p>
                     <div className="impact-grid">
                         <div className="impact-item">

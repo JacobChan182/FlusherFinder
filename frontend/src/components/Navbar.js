@@ -5,6 +5,8 @@ import { getCookie } from '../utils/cookies';
 import { API_BASE_URL } from '../config';
 import '../styling/Navbar.css';
 import FlushFinderTextLogo from './logos/FlushFinderTextLogo-2.png';
+import FlushFinderLogo from './logos/FlushFinderLogo.png';
+
 
 const Navbar = () => {
     const { isAuthenticated, logout, getToken } = useAuth();
@@ -51,7 +53,9 @@ const Navbar = () => {
         <nav className="navbar">
             <div className="navbar-container">
                 <div className="navbar-logo">
+                    <Link to="/"><img src={FlushFinderLogo} alt="FlushFinder" className="logo"/></Link>
                     <Link to="/"><img src={FlushFinderTextLogo} alt="FlushFinder" /></Link>
+
                 </div>
                 <ul className="navbar-menu">
                     <li className="navbar-item">
