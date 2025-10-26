@@ -14,7 +14,7 @@ router = APIRouter(prefix="/reviews", tags=["reviews"])
 def create_review(payload: ReviewCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
     if not db.get(Washroom, payload.washroom_id):
         raise HTTPException(status_code=404, detail="Washroom not found")
-    existing = db.query(Review).filter(Review.washroom_id==payload.washroom_id, Review.user_id==user.id).first()
+    existing = db.scalars(select(Review).filter(Review.washroom_id==payload.washroom_id, Review.user_id==user.id)).first()
     if existing:
         raise HTTPException(status_code=400, detail="You already reviewed this washroom")
     r = Review(
@@ -29,5 +29,5 @@ def create_review(payload: ReviewCreate, db: Session = Depends(get_db), user=Dep
 
 @router.get("/by-washroom/{washroom_id}")
 def list_reviews(washroom_id: str, db: Session = Depends(get_db)):
-    rows = db.query(Review).filter(Review.washroom_id==washroom_id).all()
+    rows = db.scalars(select(Review).filter(Review.washroom_id==washroom_id)).all()
     return [ReviewOut(id=r.id, washroom_id=r.washroom_id, user_id=r.user_id, rating=r.rating, comment=r.comment) for r in rows]
