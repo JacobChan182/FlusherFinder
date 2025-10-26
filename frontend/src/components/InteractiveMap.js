@@ -24,6 +24,8 @@ function InteractiveMap() {
   const commentRef = useRef(null);
   const ratingRef = useRef(null);
   const apikey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+  const [mapCenter, setMapCenter] = useState(null);
+  const [mapZoom, setMapZoom] = useState(15);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -242,6 +244,12 @@ function InteractiveMap() {
     console.error('Error creating review:', err);
     alert('Failed to submit review. Please try again.');
   }
+};
+
+const handleRestroomClick = (washroom) => {
+  setSelectedWashroom(washroom);
+  setMapCenter({ lat: washroom.lat, lng: washroom.lng });
+  setMapZoom(18);
 };
 
   if (error) {
