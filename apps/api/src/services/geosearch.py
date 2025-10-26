@@ -3,6 +3,10 @@ from src.db import SessionLocal
 
 
 def search_nearby(lat: float, lng: float, radius: int, min_rating: float, limit: int, offset: int):
+    """
+    Search nearby washrooms using latitude/longitude columns (no PostGIS required).
+    Uses haversine formula for distance calculation.
+    """
     sql = text(
         """
         WITH ra AS (
@@ -12,22 +16,26 @@ def search_nearby(lat: float, lng: float, radius: int, min_rating: float, limit:
             GROUP BY w.id
         )
         SELECT w.id, w.name, w.address,
-                ST_Y(w.location::geometry) AS lat,
-                ST_X(w.location::geometry) AS lng,
+                w.latitude AS lat,
+                w.longitude AS lng,
                 ra.avg_rating AS "avgRating",
                 ra.rating_count AS "ratingCount",
-                ST_Distance(
-                    w.location,
-                    ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography
+                -- Haversine formula to calculate distance in meters
+                6371000 * acos(
+                    LEAST(1.0, 
+                        sin(radians(:lat)) * sin(radians(w.latitude)) + 
+                        cos(radians(:lat)) * cos(radians(w.latitude)) * 
+                        cos(radians(w.longitude - :lng))
+                    )
                 ) AS "distanceM"
         FROM washrooms w
         JOIN ra ON ra.washroom_id = w.id
-        WHERE ST_DWithin(
-                w.location,
-                ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography,
-                :radius
-            )
-            AND ra.avg_rating >= :min_rating
+        WHERE ra.avg_rating >= :min_rating
+          -- Approximate distance check (using latitude/longitude degrees)
+          AND (
+            abs(w.latitude - :lat) * 111000 <= :radius AND
+            abs(w.longitude - :lng) * 111000 <= :radius
+          )
         ORDER BY "distanceM" ASC
         LIMIT :limit OFFSET :offset
         """
