@@ -56,6 +56,23 @@ const Main = () => {
         }
     };
 
+    const handleRestroomCardClick = (washroom) => {
+        // Center the map on the selected washroom
+        setMapCenter({ lat: washroom.lat, lng: washroom.lng });
+        // Highlight the marker
+        setHighlightedMarker(washroom.id);
+        // Scroll to the map section
+        const mapSection = document.querySelector('.map-section');
+        if (mapSection) {
+            mapSection.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+        // Clear highlight after 3 seconds
+        setTimeout(() => setHighlightedMarker(null), 3000);
+    };
+
     return (
         <div className="main-container">
             <div className="main-header">
@@ -96,6 +113,7 @@ const Main = () => {
                                 className={`restroom-card ${highlightedMarker === washroom.id ? 'highlighted' : ''}`}
                                 onMouseEnter={() => setHighlightedMarker(washroom.id)}
                                 onMouseLeave={() => setHighlightedMarker(null)}
+                                onClick={() => handleRestroomCardClick(washroom)}
                             >
                                 <h3>📍 {washroom.name}</h3>
                                 <p>{washroom.address}</p>
