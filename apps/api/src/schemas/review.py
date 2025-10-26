@@ -6,7 +6,6 @@ class ReviewCreate(BaseModel):
     washroom_id: str
     rating: int = Field(ge=1, le=5)
     comment: str | None = None
-    photos: dict | None = None
 
 
 class ReviewOut(BaseModel):
