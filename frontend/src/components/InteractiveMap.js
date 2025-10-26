@@ -395,7 +395,10 @@ function InteractiveMap() {
                   <select
                     required
                     value={reviewForm.rating}
-                    onChange={(e) => setReviewForm(prev => ({ ...prev, rating: parseFloat(e.target.value) }))}
+                    onChange={(e) => {
+                      const newRating = parseFloat(e.target.value);
+                      setReviewForm(prev => ({ ...prev, rating: newRating }));
+                    }}
                     className="rating-select"
                   >
                     <option value={5}>⭐⭐⭐⭐⭐ Excellent (5)</option>
@@ -410,7 +413,10 @@ function InteractiveMap() {
                   <label>Comment</label>
                   <textarea
                     value={reviewForm.comment}
-                    onChange={(e) => setReviewForm(prev => ({ ...prev, comment: e.target.value }))}
+                    onChange={(e) => {
+                      const newComment = e.target.value;
+                      setReviewForm(prev => ({ ...prev, comment: newComment }));
+                    }}
                     placeholder="Share your experience..."
                     rows={4}
                     className="review-comment"
