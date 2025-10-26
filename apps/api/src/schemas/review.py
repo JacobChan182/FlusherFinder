@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional, Dict, Any
 
 
 class ReviewCreate(BaseModel):
@@ -14,3 +14,4 @@ class ReviewOut(BaseModel):
     user_id: str
     rating: float
     comment: str | None
+    photos: Optional[Dict[str, Any]] = None
