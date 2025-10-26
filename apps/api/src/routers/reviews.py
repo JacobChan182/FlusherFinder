@@ -22,7 +22,7 @@ def create_review(payload: ReviewCreate, db: Session = Depends(get_db), user=Dep
     user_id=user.id,
     rating=payload.rating,
     comment=payload.comment,
-    photos=payload.photos,
+
     )
     db.add(r); db.commit(); db.refresh(r)
     return ReviewOut(id=r.id, washroom_id=r.washroom_id, user_id=r.user_id, rating=r.rating, comment=r.comment)

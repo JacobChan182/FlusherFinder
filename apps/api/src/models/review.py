@@ -14,7 +14,7 @@ class Review(Base):
     user_id: Mapped[str] = mapped_column(String, ForeignKey("users.id", ondelete="CASCADE"))
 
 
-    rating: Mapped[int] = mapped_column(Integer)
+    rating: Mapped[float] = mapped_column(Integer)
     comment: Mapped[str | None] = mapped_column(Text)
 
 
