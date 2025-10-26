@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from src.db import get_db
+from src.core.dependencies import get_current_user
 from src.schemas.user import UserCreate, UserOut, LoginIn, TokenOut
 from src.models.user import User
 from src.core.security import hash_password, verify_password, create_access_token
@@ -44,3 +45,8 @@ def login(payload: LoginIn, db: Session = Depends(get_db)):
 
     token = create_access_token(str(user.id))
     return TokenOut(access_token=token, token_type="bearer")
+
+@router.get("/me", response_model=UserOut)
+def get_current_user_info(current_user: User = Depends(get_current_user)):
+    """Get current user information"""
+    return UserOut(id=current_user.id, email=current_user.email, display_name=current_user.display_name)

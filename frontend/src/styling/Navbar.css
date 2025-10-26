@@ -36,6 +36,7 @@
   margin: 0;
   padding: 0;
   gap: 2rem;
+  align-items: center;
 }
 
 .navbar-item {
@@ -63,6 +64,29 @@
 }
 
 .navbar-link:hover {
+  background-color: #34495e;
+  color: #3498db;
+}
+
+.navbar-user {
+  color: #ecf0f1;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  background-color: #34495e;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.logout-btn:hover {
   background-color: #34495e;
   color: #3498db;
 }

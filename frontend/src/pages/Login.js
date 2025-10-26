@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { setCookie } from '../utils/cookies';
 import '../styling/Login.css';
 
 const Login = () => {
@@ -10,6 +12,7 @@ const Login = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleChange = (e) => {
         setFormData({
@@ -39,12 +42,39 @@ const Login = () => {
                 const data = await response.json();
                 console.log('Login successful:', data);
                 
-                // Store the token in localStorage
-                localStorage.setItem('access_token', data.access_token);
-                localStorage.setItem('token_type', data.token_type);
+                // Store the token in cookies with 1 day expiration
+                setCookie('access_token', data.access_token, 1);
+                setCookie('token_type', data.token_type, 1);
+                console.log('Cookies set:', document.cookie);
                 
-                // Redirect to main page
-                navigate('/main');
+                // Update authentication state
+                console.log('Calling login() from AuthContext...');
+                login(data.access_token, data.token_type);
+                console.log('login() called successfully');
+                
+                // Fetch and store user info
+                try {
+                    const userResponse = await fetch('http://localhost:8000/auth/me', {
+                        headers: {
+                            'Authorization': `Bearer ${data.access_token}`
+                        }
+                    });
+                    
+                    if (userResponse.ok) {
+                        const userData = await userResponse.json();
+                        console.log('User data:', userData);
+                        if (userData.display_name) {
+                            setCookie('user_display_name', userData.display_name, 1);
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error fetching user info:', err);
+                }
+                
+                // Small delay to ensure state updates, then redirect
+                setTimeout(() => {
+                    navigate('/main');
+                }, 100);
             } else {
                 const errorData = await response.json();
                 setError(errorData.detail || 'Login failed. Please check your credentials.');
