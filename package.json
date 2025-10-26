@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@railway/cli": "^4.11.0",
     "firebase-tools": "^14.22.0"
   }
 }
