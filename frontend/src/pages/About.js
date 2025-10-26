@@ -59,12 +59,12 @@ const About = () => {
                             <p>Travel and explore new places with confidence, knowing you can find safe restroom options</p>
                         </div>
                         <div className="impact-item">
-                            <h3>💪 Reduce Anxiety</h3>
+                            <h3>💪 Promote Confidence</h3>
                             <p>Lower stress levels by having reliable information about restroom availability and conditions</p>
                         </div>
                         <div className="impact-item">
                             <h3>🤝 Build Community</h3>
-                            <p>Connect with others who understand your experiences and can offer support and advice</p>
+                            <p>Connect with others who understand your experiences and can build a network of support</p>
                         </div>
                         <div className="impact-item">
                             <h3>📱 Stay Prepared</h3>

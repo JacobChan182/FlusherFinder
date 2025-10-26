@@ -23,17 +23,17 @@ const Home = () => {
                     <div className="feature-card">
                         <div className="feature-icon">📍</div>
                         <h3>Find Nearby</h3>
-                        <p>Discover clean, accessible restrooms in your area with real-time availability</p>
+                        <p>Discover clean restrooms in your area with consistently updated information</p>
                     </div>
                     <div className="feature-card">
                         <div className="feature-icon">⭐</div>
                         <h3>Community Reviews</h3>
-                        <p>Read honest reviews from people who understand your needs</p>
+                        <p>Read honest reviews from people who understand your experiences</p>
                     </div>
                     <div className="feature-card">
-                        <div className="feature-icon">🚪</div>
+                        <div className="feature-icon">ℹ️</div>
                         <h3>Accessibility Info</h3>
-                        <p>Know what to expect with detailed accessibility information</p>
+                        <p>Know what to expect with detailed information about accessibility features</p>
                     </div>
                 </div>
             </div>
