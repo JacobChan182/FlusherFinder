@@ -44,12 +44,16 @@ function InteractiveMap() {
 
   const fetchNearbyWashrooms = async (lat, lng) => {
     try {
+      console.log('Fetching nearby washrooms for lat:', lat, 'lng:', lng);
       const response = await fetch(
         `${API_BASE_URL}/search/nearby?lat=${lat}&lng=${lng}&radius=5000&limit=100`
       );
       if (response.ok) {
         const data = await response.json();
+        console.log('Fetched washrooms:', data);
         setWashrooms(data || []);
+      } else {
+        console.error('Failed to fetch washrooms:', response.status, response.statusText);
       }
     } catch (err) {
       console.error('Error fetching washrooms:', err);
@@ -149,8 +153,7 @@ function InteractiveMap() {
       });
 
       if (response.ok) {
-        const newWashroom = await response.json();
-        setWashrooms([...washrooms, newWashroom]);
+        await response.json(); // Washroom created, will refresh list
         setShowModal(false);
         setWashroomForm({
           name: '',
@@ -160,6 +163,12 @@ function InteractiveMap() {
           price: '',
           amenities: []
         });
+        
+        // Refresh washrooms list to show the new one
+        if (userLocation) {
+          fetchNearbyWashrooms(userLocation.lat, userLocation.lng);
+        }
+        
         alert('Washroom location added successfully!');
       } else {
         const errorData = await response.json();
