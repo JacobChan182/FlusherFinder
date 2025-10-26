@@ -48,9 +48,12 @@ def init_database():
             )
         """))
         
+        # Drop reviews table if it exists (to fix column name)
+        db.execute(text("DROP TABLE IF EXISTS reviews CASCADE"))
+        
         # Create reviews table
         db.execute(text("""
-            CREATE TABLE IF NOT EXISTS reviews (
+            CREATE TABLE reviews (
                 id VARCHAR(36) PRIMARY KEY DEFAULT gen_random_uuid()::text,
                 washroom_id VARCHAR(36) REFERENCES washrooms(id) ON DELETE CASCADE,
                 user_id VARCHAR(36) NOT NULL,
