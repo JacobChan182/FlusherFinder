@@ -14,7 +14,6 @@ class Review(Base):
 
     rating: Mapped[float] = mapped_column(Integer)
     comment: Mapped[str | None] = mapped_column(Text)
-    photos: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 
     washroom = relationship("Washroom", back_populates="reviews")
     user = relationship("User", back_populates="reviews")

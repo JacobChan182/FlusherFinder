@@ -21,14 +21,13 @@ def create_review(payload: ReviewCreate, db: Session = Depends(get_db), user=Dep
         washroom_id=payload.washroom_id,
         user_id=user.id,
         rating=payload.rating,
-        comment=payload.comment,
-        photos=None
+        comment=payload.comment
     )
     db.add(r); db.commit(); db.refresh(r)
-    return ReviewOut(id=r.id, washroom_id=r.washroom_id, user_id=r.user_id, rating=r.rating, comment=r.comment, photos=r.photos)
+    return ReviewOut(id=r.id, washroom_id=r.washroom_id, user_id=r.user_id, rating=r.rating, comment=r.comment)
 
 
 @router.get("/by-washroom/{washroom_id}")
 def list_reviews(washroom_id: str, db: Session = Depends(get_db)):
     rows = db.query(Review).filter(Review.washroom_id==washroom_id).all()
-    return [ReviewOut(id=r.id, washroom_id=r.washroom_id, user_id=r.user_id, rating=r.rating, comment=r.comment, photos=r.photos) for r in rows]
+    return [ReviewOut(id=r.id, washroom_id=r.washroom_id, user_id=r.user_id, rating=r.rating, comment=r.comment) for r in rows]

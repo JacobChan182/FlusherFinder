@@ -56,7 +56,6 @@ def init_database():
                 user_id VARCHAR(36) NOT NULL,
                 rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
                 comment TEXT,
-                photos JSONB,
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             )
         """))

@@ -14,4 +14,3 @@ class ReviewOut(BaseModel):
     user_id: str
     rating: float
     comment: str | None
-    photos: Optional[Dict[str, Any]] = None
