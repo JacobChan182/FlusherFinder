@@ -24,8 +24,6 @@ function InteractiveMap() {
   const commentRef = useRef(null);
   const ratingRef = useRef(null);
   const apikey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-  const [mapCenter, setMapCenter] = useState(null);
-  const [mapZoom, setMapZoom] = useState(15);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -243,14 +241,8 @@ function InteractiveMap() {
   } catch (err) {
     console.error('Error creating review:', err);
     alert('Failed to submit review. Please try again.');
-    }
-  };
-
-  const handleRestroomClick = (washroom) => {
-    setSelectedWashroom(washroom);
-    setMapCenter({ lat: washroom.lat, lng: washroom.lng });
-    setMapZoom(18);
-  };
+  }
+};
 
   if (error) {
     return <div className="map-error">Error: {error}</div>;
@@ -268,8 +260,6 @@ function InteractiveMap() {
         </div>
         
         <Map
-          center={mapCenter || userLocation}
-          zoom={mapZoom}
           defaultCenter={userLocation}
           defaultZoom={15}
           gestureHandling={'greedy'}
@@ -429,30 +419,6 @@ function InteractiveMap() {
             </div>
           </div>
         )}
-
-        {/* Nearby Restrooms List */}
-        <div className="restrooms-list">
-          <h3>Nearby Restrooms ({washrooms.length})</h3>
-          <div className="restrooms-grid">
-            {washrooms.map((washroom) => (
-              <div 
-                key={washroom.id}
-                className={`restroom-card ${selectedWashroom?.id === washroom.id ? 'selected' : ''}`}
-                onClick={() => handleRestroomClick(washroom)}
-              >
-                <h4>{washroom.name}</h4>
-                <p className="restroom-address">{washroom.address}</p>
-                <div className="restroom-stats">
-                  <span className="rating">⭐ {washroom.avgRating?.toFixed(1) || 'N/A'}</span>
-                  <span className="reviews">📊 {washroom.ratingCount || 0} reviews</span>
-                </div>
-                <div className="restroom-type">
-                  {washroom.is_public ? 'Public' : 'Private'}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
 
       </div>
     </APIProvider>
