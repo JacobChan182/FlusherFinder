@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getCookie } from '../utils/cookies';
+import { API_BASE_URL } from '../config';
 import '../styling/Navbar.css';
 import FlushFinderTextLogo from './logos/FlushFinderTextLogo-2.png';
 
@@ -26,7 +27,7 @@ const Navbar = () => {
 
                 // If not in cookie, fetch from API
                 try {
-                    const response = await fetch('http://localhost:8000/auth/me', {
+                    const response = await fetch(`${API_BASE_URL}/auth/me`, {
                         headers: {
                             'Authorization': `Bearer ${getToken()}`
                         }

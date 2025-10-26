@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { setCookie } from '../utils/cookies';
+import { API_BASE_URL } from '../config';
 import '../styling/Login.css';
 
 const Login = () => {
@@ -27,7 +28,7 @@ const Login = () => {
         setLoading(true);
 
         try {
-            const response = await fetch('http://localhost:8000/auth/login', {
+            const response = await fetch(`${API_BASE_URL}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -54,7 +55,7 @@ const Login = () => {
                 
                 // Fetch and store user info
                 try {
-                    const userResponse = await fetch('http://localhost:8000/auth/me', {
+                    const userResponse = await fetch(`${API_BASE_URL}/auth/me`, {
                         headers: {
                             'Authorization': `Bearer ${data.access_token}`
                         }
