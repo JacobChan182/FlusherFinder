@@ -19,12 +19,12 @@ function InteractiveMap() {
     price: '',
     amenities: []
   });
-  const [geocodingLoading, setGeocodingLoading] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewForm, setReviewForm] = useState({
     rating: 5,
     comment: ''
   });
+  const [geocodingLoading, setGeocodingLoading] = useState(false);
   const apikey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
   useEffect(() => {
@@ -187,68 +187,58 @@ function InteractiveMap() {
   };
 
   const handleCreateReview = async (e) => {
-    e.preventDefault();
-    const token = getAuthToken();
-    
-    if (!token) {
-      alert('Please login to leave a review');
-      return;
-    }
-    
-    if (!selectedWashroom) {
-      alert('Please select a washroom first');
-      return;
-    }
+  e.preventDefault();
+  const token = getAuthToken();
+  
+  if (!token) {
+    alert('Please login to leave a review');
+    return;
+  }
+  
+  if (!selectedWashroom) {
+    alert('Please select a washroom first');
+    return;
+  }
 
-    try {
-      console.log('Creating review for washroom:', selectedWashroom.id);
-      
-      const response = await fetch(`${API_BASE_URL}/reviews/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          washroom_id: selectedWashroom.id,
-          rating: reviewForm.rating,
-          comment: reviewForm.comment
-        })
-      });
+  try {
+    console.log('Creating review for washroom:', selectedWashroom.id);
+    
+    const response = await fetch(`${API_BASE_URL}/reviews/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        washroom_id: selectedWashroom.id,
+        rating: reviewForm.rating,
+        comment: reviewForm.comment
+      })
+    });
 
-      console.log('Response status:', response.status);
+    console.log('Response status:', response.status);
+    
+    if (response.ok) {
+      const newReview = await response.json();
+      console.log('Review created:', newReview);
+      setShowReviewModal(false);
+      setReviewForm({ rating: 5, comment: '' });
+      alert('Review submitted successfully!');
       
-      if (response.ok) {
-        const newReview = await response.json();
-        console.log('Review created:', newReview);
-        setShowReviewModal(false);
-        setReviewForm({ rating: 5, comment: '' });
-        alert('Review submitted successfully!');
-        
-        // Refresh washrooms to get updated ratings and review counts
-        if (userLocation) {
-          await fetchNearbyWashrooms(userLocation.lat, userLocation.lng);
-        }
-        
-        // Update the selected washroom with new review data
-        if (selectedWashroom) {
-          // Find the updated washroom in the refreshed data
-          const updatedWashrooms = await fetch(`${API_BASE_URL}/search/nearby?lat=${userLocation.lat}&lng=${userLocation.lng}&radius=5000&limit=100`).then(r => r.json());
-          const updatedWashroom = updatedWashrooms.find(w => w.id === selectedWashroom.id);
-          if (updatedWashroom) {
-            setSelectedWashroom(updatedWashroom);
-          }
-        }
-      } else {
-        const errorData = await response.json();
-        console.error('API Error:', errorData);
-        alert(`Failed to submit review: ${errorData.detail || 'Unknown error'}`);
+      // Optionally refresh washrooms to get updated ratings
+      if (userLocation) {
+        fetchNearbyWashrooms(userLocation.lat, userLocation.lng);
       }
-    } catch (err) {
-      console.error('Error creating review:', err);
-      alert('Failed to submit review. Please try again.');
+    } else {
+      const errorData = await response.json();
+      console.error('API Error:', errorData);
+      alert(`Failed to submit review: ${errorData.detail || 'Unknown error'}`);
     }
-  };
+  } catch (err) {
+    console.error('Error creating review:', err);
+    alert('Failed to submit review. Please try again.');
+  }
+};
 
   if (error) {
     return <div className="map-error">Error: {error}</div>;
@@ -282,6 +272,7 @@ function InteractiveMap() {
             />
           ))}
           
+
           {selectedWashroom && (
             <InfoWindow
               position={{ lat: selectedWashroom.lat, lng: selectedWashroom.lng }}
@@ -290,13 +281,12 @@ function InteractiveMap() {
               <div className="washroom-info">
                 <h3>{selectedWashroom.name}</h3>
                 <p>{selectedWashroom.address}</p>
-                <p><strong>📊 Reviews: {selectedWashroom.ratingCount || 0}</strong></p>
                 {selectedWashroom.avgRating && (
-                  <p>⭐ Average Rating: {selectedWashroom.avgRating.toFixed(1)}</p>
+                  <p>⭐ {selectedWashroom.avgRating} ({selectedWashroom.ratingCount} reviews)</p>
                 )}
                 <p>{selectedWashroom.is_public ? 'Public' : 'Private'}</p>
-                <button 
-                  onClick={() => setShowReviewModal(true)} 
+                <button
+                  onClick={() => setShowReviewModal(true)}
                   className="btn-review"
                 >
                   Leave a Review
@@ -305,6 +295,7 @@ function InteractiveMap() {
             </InfoWindow>
           )}
         </Map>
+
 
         {showModal && (
           <div className="modal-overlay" onClick={() => setShowModal(false)}>
@@ -422,7 +413,7 @@ function InteractiveMap() {
                     className="review-comment"
                   />
                 </div>
-                
+        
                 <div className="modal-buttons">
                   <button type="submit" className="btn-primary">Submit Review</button>
                   <button type="button" onClick={() => setShowReviewModal(false)} className="btn-secondary">Cancel</button>
@@ -431,6 +422,7 @@ function InteractiveMap() {
             </div>
           </div>
         )}
+
       </div>
     </APIProvider>
   );
