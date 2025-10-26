@@ -48,6 +48,19 @@ def init_database():
             )
         """))
         
+        # Create reviews table
+        db.execute(text("""
+            CREATE TABLE IF NOT EXISTS reviews (
+                id VARCHAR(36) PRIMARY KEY DEFAULT gen_random_uuid()::text,
+                washroom_id VARCHAR(36) REFERENCES washrooms(id) ON DELETE CASCADE,
+                user_id VARCHAR(36) NOT NULL,
+                rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+                comment TEXT,
+                photos JSONB,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            )
+        """))
+        
         # Create index
         db.execute(text("""
             CREATE INDEX IF NOT EXISTS ix_amenities_code ON amenities(code)
