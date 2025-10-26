@@ -44,19 +44,22 @@ function InteractiveMap() {
 
   const fetchNearbyWashrooms = async (lat, lng) => {
     try {
-      console.log('Fetching nearby washrooms for lat:', lat, 'lng:', lng);
-      const response = await fetch(
-        `${API_BASE_URL}/search/nearby?lat=${lat}&lng=${lng}&radius=5000&limit=100`
-      );
+      console.log('🔍 Fetching nearby washrooms for lat:', lat, 'lng:', lng);
+      const url = `${API_BASE_URL}/search/nearby?lat=${lat}&lng=${lng}&radius=5000&limit=100`;
+      console.log('📡 API URL:', url);
+      const response = await fetch(url);
+      console.log('📥 Response status:', response.status, response.statusText);
       if (response.ok) {
         const data = await response.json();
-        console.log('Fetched washrooms:', data);
+        console.log('✅ Fetched washrooms:', data);
+        console.log('📍 Number of washrooms:', data.length);
         setWashrooms(data || []);
       } else {
-        console.error('Failed to fetch washrooms:', response.status, response.statusText);
+        const errorText = await response.text();
+        console.error('❌ Failed to fetch washrooms:', response.status, response.statusText, errorText);
       }
     } catch (err) {
-      console.error('Error fetching washrooms:', err);
+      console.error('💥 Error fetching washrooms:', err);
     }
   };
 
@@ -141,7 +144,7 @@ function InteractiveMap() {
         lat: selectedLocation.lat,
         lng: selectedLocation.lng
       };
-      console.log('Sending request:', requestBody);
+      console.log('➕ Creating washroom:', requestBody);
       
       const response = await fetch(`${API_BASE_URL}/washrooms/`, {
         method: 'POST',
@@ -152,8 +155,11 @@ function InteractiveMap() {
         body: JSON.stringify(requestBody)
       });
 
+      console.log('📤 Response status:', response.status);
+      
       if (response.ok) {
-        await response.json(); // Washroom created, will refresh list
+        const newWashroom = await response.json();
+        console.log('✅ Washroom created:', newWashroom);
         setShowModal(false);
         setWashroomForm({
           name: '',
@@ -165,6 +171,7 @@ function InteractiveMap() {
         });
         
         // Refresh washrooms list to show the new one
+        console.log('🔄 Refreshing washrooms list...');
         if (userLocation) {
           fetchNearbyWashrooms(userLocation.lat, userLocation.lng);
         }
@@ -172,11 +179,11 @@ function InteractiveMap() {
         alert('Washroom location added successfully!');
       } else {
         const errorData = await response.json();
-        console.error('API Error:', errorData);
+        console.error('❌ API Error:', errorData);
         alert(`Failed to create washroom: ${errorData.detail || 'Unknown error'}`);
       }
     } catch (err) {
-      console.error('Error creating washroom:', err);
+      console.error('💥 Error creating washroom:', err);
       alert('Failed to create washroom. Please try again.');
     }
   };
@@ -205,6 +212,7 @@ function InteractiveMap() {
         >
           <Marker position={userLocation} label="You" />
           
+          {console.log('🗺️ Rendering map with', washrooms.length, 'washrooms')}
           {washrooms.map((washroom) => (
             <Marker
               key={washroom.id}
