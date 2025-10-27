@@ -46,11 +46,10 @@ FlushFinder provides:
 
 ### Smart Rating System
 - **Bayesian Smoothing Algorithm** - Prevents extreme ratings with few reviews
-- **Weighted Scoring** - More reliable ratings for new washrooms
 - **2 Decimal Precision** - Clean, professional rating display
 
 ### User Experience
-- **Responsive Design** - Works seamlessly on desktop and mobile
+- **Responsive Design** - Works seamlessly on desktop (Mobile coming soon!)
 - **Real-time Search** - Find restrooms as you move around
 - **Community Reviews** - Honest feedback from users who understand
 - **Accessibility Focus** - Designed with diverse user needs in mind
@@ -103,10 +102,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Google Maps API** - For location services
 - **Firebase** - For hosting and deployment
 - **Railway** - For backend infrastructure
-- **The Community** - For feedback and support
 
 ---
-
-**Built with ❤️ for the accessibility community**
-
-*FlushFinder: Empowering people with digestive conditions to explore the world with confidence.*
